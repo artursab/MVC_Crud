@@ -1,9 +1,23 @@
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using MVC_CRud.Data;
+using MVC_CRud.Models;
+
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<MVC_CRudContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MVC_CRudContext") ?? throw new InvalidOperationException("Connection string 'MVC_CRudContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+
+    SeedData.Initialize(services);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
